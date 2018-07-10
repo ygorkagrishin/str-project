@@ -87,7 +87,7 @@ const jsCacheName = 'jscache';
 const options = Object.assign(paths, otherFiles);
 
 // Определение: разработка это или финальная сборка
-const isDev = !process.env.NODE_ENV || process.env.NODE_ENV == 'dev';
+const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV == 'development';
 
 // Чистим папку
 gulp.task('del', () => {
@@ -106,9 +106,7 @@ gulp.task('html:build', () => {
         }
     }))
     .pipe(debug({title: 'html'}))
-    .pipe(pug({
-        pretty: gulpif(isDev, true)
-    }))
+    .pipe(pug(gulpif(isDevelopment, {pretty: true })))
     .pipe(gulp.dest(options.pug.dest));
 });
 
@@ -131,17 +129,14 @@ gulp.task('css:build', () => {
         }))
         .pipe(cached(cssCacheName))
         .pipe(debug({title: 'css'}))
-        .pipe(gulpif(isDev, sourcemaps.init()))
+        .pipe(gulpif(isDevelopment, sourcemaps.init()))
         .pipe(remember(cssCacheName))
-        .pipe(stylus({
-            compress: true,
-            'include css': true
-        }))
+        .pipe(stylus(gulpif(!isDevelopment, {compress: true, 'include css': true})))
         .pipe(autoprefixer({
             browsers: ['last 2 versions']
         }))
         .pipe(rename('styles.min.css'))
-        .pipe(gulpif(isDev, sourcemaps.write('.')))
+        .pipe(gulpif(isDevelopment, sourcemaps.write('.')))
         .pipe(gulp.dest(options.stylus.dest));
 });
 
@@ -164,14 +159,14 @@ gulp.task('js:build', () => {
         }))
         .pipe(cached(jsCacheName))
         .pipe(debug({title: 'js'}))
-        .pipe(gulpif(isDev, sourcemaps.init()))
+        .pipe(gulpif(isDevelopment, sourcemaps.init()))
         .pipe(remember(jsCacheName))
         .pipe(babel({
             presets: ['env']
         }))
-        .pipe(gulpif(isDev, uglify()))
+        .pipe(gulpif(!isDevelopment, uglify()))
         .pipe(concat('common.min.js'))
-        .pipe(gulpif(isDev, sourcemaps.write('.')))
+        .pipe(gulpif(isDevelopment, sourcemaps.write('.')))
         .pipe(gulp.dest(options.scripts.dest));
 });
 
