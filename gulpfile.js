@@ -52,24 +52,21 @@ const paths = {
     dir: 'public/'
 }
 
-// Определяем: разработка это или финальная сборка
 const isDev = !process.env.NODE_ENV || process.env.NODE_ENV == 'dev';
 
 const cssCacheName = 'csscash';
 const jsCacheName = 'jscache';
 
-// Очистка рабочий папки
 gulp.task('del', () => {
     return del(paths.dir + '*');
 });
 
-// Сборка html
 gulp.task('html:build', () => {
     return gulp.src(paths.pug.src)
     .pipe(plumber({
         errorHandler: err => {
             notify.onError({
-                title: 'Html build error',
+                title: 'html build error',
                 message: err.message
             })(err)
         }
@@ -81,13 +78,12 @@ gulp.task('html:build', () => {
     .pipe(gulp.dest(paths.pug.dest));
 });
 
-// Сборка стилей
 gulp.task('css:build', () => {
     return gulp.src(paths.stylus.src)
         .pipe(plumber({
             errorHandler: err => {
                 notify.onError({
-                    title: 'Styles build error',
+                    title: 'css build error',
                     message: err.message
                 })(err)
             }
@@ -103,12 +99,11 @@ gulp.task('css:build', () => {
         .pipe(autoprefixer({
             browsers: ['last 2 versions']
         }))
-        .pipe(rename('style.min.css'))
+        .pipe(rename('styles.min.css'))
         .pipe(gulpif(isDev, sourcemaps.write('.')))
         .pipe(gulp.dest(paths.stylus.dest));
 });
 
-// Сборка js
 gulp.task('js:build', () => {
     return gulp.src(paths.scripts.src)
         .pipe(plumber({
@@ -132,16 +127,34 @@ gulp.task('js:build', () => {
         .pipe(gulp.dest(paths.scripts.dest));
 });
 
-// Копирование и перенос шрифтов
 gulp.task('fonts:copy', () => {
     return gulp.src(paths.fonts.src)
         .pipe(newer(paths.fonts.dest))
         .pipe(gulp.dest(paths.fonts.dest));
 });
 
-// Копирование и перенос изображений
 gulp.task('img:copy', () => {
     return gulp.src(paths.images.src)
         .pipe(newer(paths.images.dest))
         pipe(gulp.dest(paths.images.dest));
 });
+
+gulp.task('watch', () => {
+    gulp.watch(paths.pug.watch, gulp.series('html:build'))
+    gulp.watch(paths.stylus.watch, gulp.series('css:build'))
+    gulp.watch(paths.scripts.watch, gulp.series('js:build'))
+    gulp.watch(paths.fonts.watch, gulp.series('fonts:copy'))
+    gulp.watch(paths.images.watch, gulp.series('img:copy'))
+});
+
+gulp.task('serve', () => {
+    browserSync.init({
+        server: paths.dir
+    });
+
+    gulp.watch(paths.dir + '**/**/*.*').on('change', browserSync.reload);    
+});
+
+gulp.task('build', gulp.series('fonts:copy', 'img:copy', 'html:build', 'css:build', 'js:build'));
+
+gulp.task('default', gulp.series('del', 'build', gulp.parallel('watch', 'serve')));
