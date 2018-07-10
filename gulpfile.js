@@ -1,68 +1,102 @@
 'use strict';
 
+// базовый модуль
 const gulp = require('gulp');
+// минисервер с возможностью синхронизации и лайврелоадом
 const browserSync = require('browser-sync').create();
 
+// переводит pug(jade) в html
 const pug = require('gulp-pug');
 
+// переводит stylus в css
 const stylus = require('gulp-stylus');
+// добавляет карты с исходным кодом для JS и CSS
 const sourcemaps = require('gulp-sourcemaps');
+
+// добавляет префиксы браузеров в CSS
 const autoprefixer = require('gulp-autoprefixer');
 
+// базовый модуль Babel для работы с ES6
 const babel = require('gulp-babel');
+// объединяет файлы в один
 const concat = require('gulp-concat');
+// минификация js
 const uglify = require('gulp-uglify');
 
+// уменьшаем вес картинок
+const imagemin = require('gulp-imagemin');
+
+// проброс сообщения об ошибке через всю цепочку задач
 const plumber = require('gulp-plumber');
+// выводит удобное сообщение об ошибках 
 const notify = require('gulp-notify');
+// выполнение операций в зависимости от условий
 const gulpif = require('gulp-if');
+// выводит дополнительную информацию об операциях с файлами
 const debug = require('gulp-debug');
+// фильтр пропускающий файлы которые изменились с предыдущего раза
 const newer = require('gulp-newer');
+// кеш файл для оптимизации скорости
 const cached = require('gulp-cached');
+// запоминает прошедшие через него файлы и вставляет их обратно в поток
+// работает в паре с gulp-cached который пропускает только изменившиеся файлы
 const remember = require('gulp-remember');
+// меняем имя
 const rename = require('gulp-rename');
+// чистим папку
 const del = require('del');
 
+// Пути к основным файлам
 const paths = {
     pug: {
-        src: 'assets/pug/*.pug',
-        dest: 'public/',
-        watch: 'assets/pug/**/*.pug'
+        src: 'assets/pug',
+        dest: 'public/'
     },
     stylus: {
-        src: 'assets/static/styles/styles.styl',
-        dest: 'public/',
-        watch: 'assets/static/styles/**/*.styl'
+        src: 'assets/static/styles',
+        dest: 'public/'
     },
     scripts: {
-        src: 'assets/static/scripts/*.js',
-        dest: 'public/',
-        watch: 'assets/static/scripts/*.js'
+        src: 'assets/static/scripts',
+        dest: 'public/'
     },
     fonts: {
-        src: 'assets/static/fonts/**/*',
-        dest: 'public/fonts/',
-        watch: 'assets/static/fonts/**/*'
+        src: 'assets/static/fonts',
+        dest: 'public/fonts/'
     },
     images: {
-        src: 'assets/static/images/**/**/*',
-        dest: 'public/images/',
-        watch: 'assets/static/images/**/**/*'
+        src: 'assets/static/images',
+        dest: 'public/images/'
     },
-    dir: 'public/'
+    baseDir: 'public'
 }
 
-const isDev = !process.env.NODE_ENV || process.env.NODE_ENV == 'dev';
+// Пути к остальным файлам
+const otherFiles = {
+    addCssBefore: [
+        'node_modules/normalize.css/normalize.css'
+    ],
+    addJsBefore: [
+        'node_modules/jquery/dist/jquery.min.js'
+    ] 
+}
 
-const cssCacheName = 'csscash';
+const cssCacheName = 'csscache';
 const jsCacheName = 'jscache';
 
+const options = Object.assign(paths, otherFiles);
+
+// Определение: разработка это или финальная сборка
+const isDev = !process.env.NODE_ENV || process.env.NODE_ENV == 'dev';
+
+// Чистим папку
 gulp.task('del', () => {
-    return del(paths.dir + '*');
+    return del(options.baseDir + '/*');
 });
 
+// Собираем разметку
 gulp.task('html:build', () => {
-    return gulp.src(paths.pug.src)
+    return gulp.src(options.pug.src + '/*.pug')
     .pipe(plumber({
         errorHandler: err => {
             notify.onError({
@@ -75,11 +109,18 @@ gulp.task('html:build', () => {
     .pipe(pug({
         pretty: gulpif(isDev, true)
     }))
-    .pipe(gulp.dest(paths.pug.dest));
+    .pipe(gulp.dest(options.pug.dest));
 });
 
+// Копируем файлы css
+gulp.task('css:copy', () => {
+    return gulp.src(options.addCssBefore)
+        .pipe(gulp.dest(options.baseDir + '/'))
+});
+
+// Собираем стили
 gulp.task('css:build', () => {
-    return gulp.src(paths.stylus.src)
+    return gulp.src(options.stylus.src + '/styles.styl')
         .pipe(plumber({
             errorHandler: err => {
                 notify.onError({
@@ -101,11 +142,18 @@ gulp.task('css:build', () => {
         }))
         .pipe(rename('styles.min.css'))
         .pipe(gulpif(isDev, sourcemaps.write('.')))
-        .pipe(gulp.dest(paths.stylus.dest));
+        .pipe(gulp.dest(options.stylus.dest));
 });
 
+// Копируем файлы скриптов
+gulp.task('js:copy', () => {
+    return gulp.src(options.addJsBefore)
+        .pipe(gulp.dest(options.baseDir + '/'));
+});
+
+// Собираем скрипты
 gulp.task('js:build', () => {
-    return gulp.src(paths.scripts.src)
+    return gulp.src(options.scripts.src + '/*.js')
         .pipe(plumber({
             errorHandler: err => {
                 notify.onError({
@@ -124,37 +172,44 @@ gulp.task('js:build', () => {
         .pipe(gulpif(isDev, uglify()))
         .pipe(concat('common.min.js'))
         .pipe(gulpif(isDev, sourcemaps.write('.')))
-        .pipe(gulp.dest(paths.scripts.dest));
+        .pipe(gulp.dest(options.scripts.dest));
 });
 
+// Копируем шрифты
 gulp.task('fonts:copy', () => {
-    return gulp.src(paths.fonts.src)
-        .pipe(newer(paths.fonts.dest))
-        .pipe(gulp.dest(paths.fonts.dest));
+    return gulp.src(options.fonts.src + '/**/*.{ttf,woff,woff2,eot,svg}')
+        .pipe(newer(options.fonts.dest))
+        .pipe(gulp.dest(options.fonts.dest));
 });
 
+// Копируем картинки
 gulp.task('img:copy', () => {
-    return gulp.src(paths.images.src)
-        .pipe(newer(paths.images.dest))
-        pipe(gulp.dest(paths.images.dest));
+    return gulp.src(options.images.src + '/**/**/*.{png,jpg}')
+        .pipe(newer(options.images.dest))
+        .pipe(imagemin({
+            optimizationLevel: 5
+        }))
+        .pipe(gulp.dest(options.images.dest));
 });
 
 gulp.task('watch', () => {
-    gulp.watch(paths.pug.watch, gulp.series('html:build'))
-    gulp.watch(paths.stylus.watch, gulp.series('css:build'))
-    gulp.watch(paths.scripts.watch, gulp.series('js:build'))
-    gulp.watch(paths.fonts.watch, gulp.series('fonts:copy'))
-    gulp.watch(paths.images.watch, gulp.series('img:copy'))
+    gulp.watch(options.pug.src + '/**/*.pug', gulp.series('html:build'))
+    gulp.watch(options.stylus.src + '/**/*.styl', gulp.series('css:build'))
+    gulp.watch(options.scripts.src + '/*.js', gulp.series('js:build'))
+    gulp.watch(options.fonts.src + '/**/*.{ttf,woff,woff2,eot,svg}', gulp.series('fonts:copy'))
+    gulp.watch(options.images.src + '/**/**/*.{png,jpg}', gulp.series('img:copy'))
 });
 
 gulp.task('serve', () => {
     browserSync.init({
-        server: paths.dir
+        server: options.baseDir + '/'
     });
 
-    gulp.watch(paths.dir + '**/**/*.*').on('change', browserSync.reload);    
+    gulp.watch(options.baseDir + '/**/**/*.*').on('change', browserSync.reload);    
 });
 
-gulp.task('build', gulp.series('fonts:copy', 'img:copy', 'html:build', 'css:build', 'js:build'));
+gulp.task('build', 
+    gulp.series('fonts:copy', 'img:copy', 'css:copy', 'js:copy', 'html:build', 'css:build', 'js:build'));
 
+// Собираем проект
 gulp.task('default', gulp.series('del', 'build', gulp.parallel('watch', 'serve')));

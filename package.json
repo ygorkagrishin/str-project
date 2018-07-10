@@ -28,6 +28,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-debug": "^4.0.0",
     "gulp-if": "^2.0.2",
+    "gulp-imagemin": "^4.1.0",
     "gulp-newer": "^1.4.0",
     "gulp-notify": "^3.2.0",
     "gulp-plumber": "^1.2.0",
@@ -37,5 +38,9 @@
     "gulp-sourcemaps": "^2.6.4",
     "gulp-stylus": "^2.7.0",
     "gulp-uglify": "^3.0.0"
+  },
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "normalize.css": "^8.0.0"
   }
 }
