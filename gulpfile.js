@@ -26,6 +26,13 @@ const uglify = require('gulp-uglify');
 // уменьшаем вес картинок
 const imagemin = require('gulp-imagemin');
 
+// спрайт svg
+const svgstore = require('gulp-svgstore');
+// уменьшаем вес svg
+const svgmin = require('gulp-svgmin');
+// для манипуляции html
+const cheerio = require('gulp-cheerio');
+
 // проброс сообщения об ошибке через всю цепочку задач
 const plumber = require('gulp-plumber');
 // выводит удобное сообщение об ошибках 
@@ -67,6 +74,10 @@ const paths = {
     images: {
         src: 'assets/static/images',
         dest: 'public/images/'
+    },
+    icons: {
+        src: 'assets/static/icons',
+        dest: 'public/icons/'
     },
     baseDir: 'public'
 }
@@ -187,12 +198,39 @@ gulp.task('img:copy', () => {
         .pipe(gulp.dest(options.images.dest));
 });
 
+// Собирааем svg
+gulp.task('svg:sprite', () => {
+    return gulp.src(options.icons.src + '/*.svg')
+    .pipe(newer(options.icons.dest))
+    .pipe(svgmin(function (file) {
+        return {
+            plugins: [{
+                cleanupIDs: {
+                minify: true
+                }   
+            }]
+        }
+    }))
+    .pipe(svgstore({ inlineSvg: true }))
+    .pipe(cheerio({
+        run: function($) {
+            $('svg').attr('style',  'display:none');
+        },
+        parserOptions: {
+            xmlMode: true
+        }
+    }))
+    .pipe(rename('sprite-svg.svg'))
+    .pipe(gulp.dest(options.icons.dest))
+});
+
 gulp.task('watch', () => {
     gulp.watch(options.pug.src + '/**/*.pug', gulp.series('html:build'))
     gulp.watch(options.stylus.src + '/**/*.styl', gulp.series('css:build'))
     gulp.watch(options.scripts.src + '/*.js', gulp.series('js:build'))
     gulp.watch(options.fonts.src + '/**/*.{ttf,woff,woff2,eot,svg}', gulp.series('fonts:copy'))
     gulp.watch(options.images.src + '/**/**/*.{png,jpg}', gulp.series('img:copy'))
+    gulp.watch(options.icons.src + '/**/*.svg', gulp.series('svg:sprite'))
 });
 
 gulp.task('serve', () => {
@@ -204,7 +242,7 @@ gulp.task('serve', () => {
 });
 
 gulp.task('build', 
-    gulp.series('fonts:copy', 'img:copy', 'css:copy', 'js:copy', 'html:build', 'css:build', 'js:build'));
+    gulp.series('fonts:copy', 'img:copy', 'svg:sprite', 'css:copy', 'js:copy', 'html:build', 'css:build', 'js:build'));
 
 // Собираем проект
 gulp.task('default', gulp.series('del', 'build', gulp.parallel('watch', 'serve')));
