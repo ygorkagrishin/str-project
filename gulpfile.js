@@ -242,7 +242,7 @@ gulp.task('serve', () => {
 });
 
 gulp.task('build', 
-    gulp.series('fonts:copy', 'img:copy', 'svg:sprite', 'css:copy', 'js:copy', 'html:build', 'css:build', 'js:build'));
+    gulp.series('del', 'fonts:copy', 'img:copy', 'svg:sprite', 'css:copy', 'js:copy', 'html:build', 'css:build', 'js:build'));
 
 // Собираем проект
-gulp.task('default', gulp.series('del', 'build', gulp.parallel('watch', 'serve')));
+gulp.task('default', gulp.series('build', gulp.parallel('watch', 'serve')));
