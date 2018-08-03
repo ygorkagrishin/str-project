@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "gulp",
-    "build": "set NODE_ENV='production' && npm run build"
+    "build": "set NODE_ENV='production' && gulp build"
   },
   "repository": {
     "type": "git",
