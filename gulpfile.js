@@ -64,7 +64,7 @@ const paths = {
         dest: 'public/'
     },
     scripts: {
-        src: 'assets/static/scripts',
+        src: 'assets/static/js',
         dest: 'public/'
     },
     fonts: {
@@ -72,12 +72,12 @@ const paths = {
         dest: 'public/fonts/'
     },
     images: {
-        src: 'assets/static/images',
-        dest: 'public/images/'
+        src: 'assets/static/img',
+        dest: 'public/img/'
     },
     icons: {
-        src: 'assets/static/icons',
-        dest: 'public/icons/'
+        src: 'assets/static/svg',
+        dest: 'public/'
     },
     baseDir: 'public'
 }
