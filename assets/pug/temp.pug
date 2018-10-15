@@ -1,3 +1,7 @@
+
+include helpers/variables/_variables
+include helpers/mixin/_mixin
+
 doctype
 
 html(lang="ru")
@@ -10,6 +14,8 @@ html(lang="ru")
 
     link(rel="stylesheet", href="normalize.css")
     link(rel="stylesheet", href="styles.min.css")
+
+    block scripts
 
     body.page
       block content
