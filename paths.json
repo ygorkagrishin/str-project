@@ -1,23 +1,23 @@
 {
   "paths": {
-    "pug": {
+    "html": {
       "src": "assets/pug",
       "dest": "public/"
     },
-    "stylus": {
-      "src": "assets/static/styles",
+    "css": {
+      "src": "assets/static/stylesheets",
       "dest": "public/"
     },
-    "scripts": {
-      "src": "assets/static/js",
+    "js": {
+      "src": "assets/static/scripts",
       "dest": "public/"
     },
     "fonts": {
       "src": "assets/static/fonts",
       "dest": "public/fonts/"
     },
-    "images": {
-      "src": "assets/static/img",
+    "img": {
+      "src": "assets/static/images",
       "dest": "public/img/"
     },
     "svg": {
@@ -26,7 +26,7 @@
     },
     "baseDir": "public"
   },
-  "files": {
+  "libs": {
     "css": [
       "node_modules/normalize.css/normalize.css"
     ],

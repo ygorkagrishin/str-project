@@ -54,11 +54,11 @@ const rename = require('gulp-rename');
 const del = require('del');
 
 // Подключаем конфигурационный файл
-const conf = require('./settings.json');
+const conf = require('./paths.json');
 
 // Подключаем пути
 const paths = conf.paths;
-const files = conf.files;
+const libs = conf.libs;
 
 // Определение: разработка это или финальная сборка
 const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV == 'development';
@@ -70,7 +70,7 @@ gulp.task('del', () => {
 
 // Собираем разметку
 gulp.task('html:build', () => {
-  return gulp.src(paths.pug.src + '/*.pug')
+  return gulp.src(paths.html.src + '/temp.pug')
   .pipe(plumber({
     errorHandler: err => {
       notify.onError({
@@ -81,18 +81,18 @@ gulp.task('html:build', () => {
   }))
   .pipe(debug({title: 'html'}))
   .pipe(pug(gulpif(isDevelopment, {pretty: true })))
-  .pipe(gulp.dest(paths.pug.dest));
+  .pipe(gulp.dest(paths.html.dest));
 });
 
 // Копируем файлы css
 gulp.task('css:copy', () => {
-  return gulp.src(files.css)
+  return gulp.src(libs.css)
   .pipe(gulp.dest(paths.baseDir + '/'));
 });
 
 // Собираем стили
 gulp.task('css:build', () => {
-  return gulp.src(paths.stylus.src + '/styles.styl')
+  return gulp.src(paths.css.src + '/custom.styl')
   .pipe(plumber({
     errorHandler: err => {
       notify.onError({
@@ -111,18 +111,18 @@ gulp.task('css:build', () => {
   }))
   .pipe(rename('styles.min.css'))
   .pipe(gulpif(isDevelopment, sourcemaps.write('.')))
-  .pipe(gulp.dest(paths.stylus.dest));
+  .pipe(gulp.dest(paths.css.dest));
 });
 
 // Копируем файлы скриптов
 gulp.task('js:copy', () => {
-  return gulp.src(files.js)
+  return gulp.src(libs.js)
   .pipe(gulp.dest(paths.baseDir + '/'));
 });
 
 // Собираем скрипты
 gulp.task('js:build', () => {
-  return gulp.src(paths.scripts.src + '/*.js')
+  return gulp.src(paths.js.src + '/*.js')
   .pipe(plumber({
     errorHandler: err => {
       notify.onError({
@@ -141,7 +141,7 @@ gulp.task('js:build', () => {
   .pipe(gulpif(!isDevelopment, uglify()))
   .pipe(concat('common.min.js'))
   .pipe(gulpif(isDevelopment, sourcemaps.write('.')))
-  .pipe(gulp.dest(paths.scripts.dest));
+  .pipe(gulp.dest(paths.js.dest));
 });
 
 // Копируем шрифты
@@ -153,12 +153,12 @@ gulp.task('fonts:copy', () => {
 
 // Копируем картинки
 gulp.task('img:copy', () => {
-  return gulp.src(paths.images.src + '/**/**/*.{png,jpg}')
-  .pipe(newer(paths.images.dest))
+  return gulp.src(paths.img.src + '/**/**/*.{png,jpg}')
+  .pipe(newer(paths.img.dest))
   .pipe(imagemin({
     optimizationLevel: 5
   }))
-  .pipe(gulp.dest(paths.images.dest));
+  .pipe(gulp.dest(paths.img.dest));
 });
 
 // Собирааем svg
@@ -188,11 +188,11 @@ gulp.task('svg:sprite', () => {
 });
 
 gulp.task('watch', () => {
-  gulp.watch(paths.pug.src + '/**/*.pug', gulp.series('html:build'));
-  gulp.watch(paths.stylus.src + '/**/*.styl', gulp.series('css:build'));
-  gulp.watch(paths.scripts.src + '/*.js', gulp.series('js:build'));
+  gulp.watch(paths.html.src + '/**/*.pug', gulp.series('html:build'));
+  gulp.watch(paths.css.src + '/**/*.styl', gulp.series('css:build'));
+  gulp.watch(paths.js.src + '/*.js', gulp.series('js:build'));
   gulp.watch(paths.fonts.src + '/**/*.{ttf,woff,woff2,eot,svg}', gulp.series('fonts:copy'));
-  gulp.watch(paths.images.src + '/**/**/*.{png,jpg}', gulp.series('img:copy'));
+  gulp.watch(paths.img.src + '/**/**/*.{png,jpg}', gulp.series('img:copy'));
   gulp.watch(paths.svg.src + '/**/*.svg', gulp.series('svg:sprite'));
 });
 
