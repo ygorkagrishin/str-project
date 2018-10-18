@@ -38,8 +38,8 @@
     "gulp-pug": "^4.0.1",
     "gulp-remember": "^1.0.1",
     "gulp-rename": "^1.4.0",
+    "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.4",
-    "gulp-stylus": "^2.7.0",
     "gulp-svgmin": "^1.2.4",
     "gulp-svgstore": "^6.1.1",
     "gulp-uglify": "^3.0.1"

@@ -8,8 +8,8 @@ const browserSync = require('browser-sync').create();
 // переводит pug(jade) в html
 const pug = require('gulp-pug');
 
-// переводит stylus в css
-const stylus = require('gulp-stylus');
+// переводит sass в css
+const sass = require('gulp-sass');
 // добавляет карты с исходным кодом для JS и CSS
 const sourcemaps = require('gulp-sourcemaps');
 
@@ -105,11 +105,11 @@ gulp.task('css:build', () => {
   .pipe(debug({title: 'css'}))
   .pipe(gulpif(isDevelopment, sourcemaps.init()))
   .pipe(remember('csscache'))
-  .pipe(stylus(gulpif(!isDevelopment, {compress: true, 'include css': true})))
+  .pipe(sass(gulpif(!isDevelopment, {outputStyle: 'compressed'})))
   .pipe(autoprefixer({
     browsers: ['last 2 versions']
   }))
-  .pipe(rename('styles.min.css'))
+  .pipe(rename('custom.min.css'))
   .pipe(gulpif(isDevelopment, sourcemaps.write('.')))
   .pipe(gulp.dest(paths.css.dest));
 });
