@@ -92,7 +92,7 @@ gulp.task('css:copy', () => {
 
 // Собираем стили
 gulp.task('css:build', () => {
-  return gulp.src(paths.css.src + '/custom.styl')
+  return gulp.src(paths.css.src + '/custom.scss')
   .pipe(plumber({
     errorHandler: err => {
       notify.onError({

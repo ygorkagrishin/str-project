@@ -5,11 +5,11 @@
       "dest": "public/"
     },
     "css": {
-      "src": "assets/static/stylesheets",
+      "src": "assets/static/scss",
       "dest": "public/"
     },
     "js": {
-      "src": "assets/static/scripts",
+      "src": "assets/static/js",
       "dest": "public/"
     },
     "fonts": {
@@ -17,7 +17,7 @@
       "dest": "public/fonts/"
     },
     "img": {
-      "src": "assets/static/images",
+      "src": "assets/static/img",
       "dest": "public/img/"
     },
     "svg": {
