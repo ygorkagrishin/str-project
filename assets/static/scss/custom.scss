@@ -1,10 +1,11 @@
-@import 'base/typography.scss';
-@import 'base/reset.scss';
+@import 'base/_typography.scss';
+@import 'base/_reset.scss';
 
-@import 'helpers/variables/variabls.scss';
-@import 'helpers/mixin/mixin.scss';
+@import 'helpers/variables/_variables.scss';
+@import 'helpers/mixin/_mixin.scss';
 
-@import 'modules/header.scss';
-@import 'modules/nav.scss';
-@import 'modules/footer.scss';
+@import 'modules/_buttons.scss';
 
+@import 'modules/_header.scss';
+@import 'modules/_nav.scss';
+@import 'modules/_footer.scss';

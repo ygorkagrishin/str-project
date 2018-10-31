@@ -70,7 +70,7 @@ gulp.task('del', () => {
 
 // Собираем разметку
 gulp.task('html:build', () => {
-  return gulp.src(paths.html.src + '/temp.pug')
+  return gulp.src(paths.html.src + '/*.pug')
   .pipe(plumber({
     errorHandler: err => {
       notify.onError({
@@ -189,7 +189,7 @@ gulp.task('svg:sprite', () => {
 
 gulp.task('watch', () => {
   gulp.watch(paths.html.src + '/**/**/*.pug', gulp.series('html:build'));
-  gulp.watch(paths.css.src + '/**/**/*.styl', gulp.series('css:build'));
+  gulp.watch(paths.css.src + '/**/**/*.scss', gulp.series('css:build'));
   gulp.watch(paths.js.src + '/*.js', gulp.series('js:build'));
   gulp.watch(paths.fonts.src + '/**/*.{ttf,woff,woff2,eot,svg}', gulp.series('fonts:copy'));
   gulp.watch(paths.img.src + '/**/**/*.{png,jpg}', gulp.series('img:copy'));

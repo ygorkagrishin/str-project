@@ -256,9 +256,17 @@ svg {
   display: none;
 }
 
+.clearfix {
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}
+
 .visually-hidden {
   position: absolute;
-  z-index: -$z-index1;
+  z-index: -1;
   width: 0;
   height: 0;
   margin: 0;
