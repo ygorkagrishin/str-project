@@ -87,7 +87,7 @@ gulp.task('html:build', () => {
 // Копируем файлы css
 gulp.task('css:copy', () => {
   return gulp.src(libs.css)
-  .pipe(gulp.dest(paths.baseDir + '/'));
+  .pipe(gulp.dest(paths.baseDir + '/libs/css/'));
 });
 
 // Собираем стили
@@ -117,7 +117,7 @@ gulp.task('css:build', () => {
 // Копируем файлы скриптов
 gulp.task('js:copy', () => {
   return gulp.src(libs.js)
-  .pipe(gulp.dest(paths.baseDir + '/'));
+  .pipe(gulp.dest(paths.baseDir + '/libs/js/'));
 });
 
 // Собираем скрипты
