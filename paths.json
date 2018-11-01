@@ -24,14 +24,20 @@
       "src": "assets/static/svg",
       "dest": "public/"
     },
+    "libs": {
+      "css": [
+        {   
+          "src": "node_modules/normalize.css/normalize.css",
+          "dest": "public/libs/normalize/"
+        }
+      ],
+      "js": [
+        {
+          "src": "node_modules/jquery/dist/jquery.min.js",
+          "dest": "public/libs/jquery/"
+        }
+      ]
+    },
     "baseDir": "public"
-  },
-  "libs": {
-    "css": [
-      "node_modules/normalize.css/normalize.css"
-    ],
-    "js": [
-      "node_modules/jquery/dist/jquery.min.js"
-    ]
   }
 }

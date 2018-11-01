@@ -58,7 +58,7 @@ const conf = require('./paths.json');
 
 // Подключаем пути
 const paths = conf.paths;
-const libs = conf.libs;
+const libs = paths.libs;
 
 // Определение: разработка это или финальная сборка
 const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV == 'development';
@@ -68,16 +68,29 @@ gulp.task('del', () => {
   return del(paths.baseDir + '/*');
 });
 
+/* 
+  Для того, что бы указать какие файлы стоит складывать в папку libs, 
+  в файле paths указываем путь в свойстве с именем одноименной папки.
+*/
+
 // Библиотеки и плагины css складываем в папку libs/css
-gulp.task('css:libs', () => {
-  return gulp.src(libs.css)
-  .pipe(gulp.dest(paths.baseDir + '/libs/css/'));
+gulp.task('css:libs', (done) => {
+  libs.css.forEach(lib => {
+    return gulp.src(lib.src)
+    .pipe(gulp.dest(lib.dest));
+  });
+
+  done();
 });
 
 // Библиотеки и плагины js складываем в папку libs/js
-gulp.task('js:libs', () => {
-  return gulp.src(libs.js)
-  .pipe(gulp.dest(paths.baseDir + '/libs/js/'));
+gulp.task('js:libs', (done) => {
+  libs.js.forEach(lib => {
+    return gulp.src(lib.src)
+    .pipe(gulp.dest(lib.dest));
+  });
+
+  done();
 });
 
 // Шрифты складываем в папку fonts
@@ -202,7 +215,7 @@ gulp.task('serve', () => {
 });
 
 gulp.task('build', 
-  gulp.series('del', 'css:libs', 'js:libs', 'fonts:copy', 'img:copy', 'svg:build', 'html:build', 'css:build', 'js:build'));
+  gulp.series('del','css:libs', 'js:libs', 'fonts:copy', 'img:copy', 'svg:build', 'html:build', 'css:build', 'js:build'));
 
 // Собираем проект
 gulp.task('default', gulp.series('build', gulp.parallel('watch', 'serve')));
