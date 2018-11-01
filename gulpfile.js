@@ -68,6 +68,61 @@ gulp.task('del', () => {
   return del(paths.baseDir + '/*');
 });
 
+// Библиотеки и плагины css складываем в папку libs/css
+gulp.task('css:libs', () => {
+  return gulp.src(libs.css)
+  .pipe(gulp.dest(paths.baseDir + '/libs/css/'));
+});
+
+// Библиотеки и плагины js складываем в папку libs/js
+gulp.task('js:libs', () => {
+  return gulp.src(libs.js)
+  .pipe(gulp.dest(paths.baseDir + '/libs/js/'));
+});
+
+// Шрифты складываем в папку fonts
+gulp.task('fonts:copy', () => {
+  return gulp.src(paths.fonts.src + '/**/*.{ttf,woff,woff2,eot,svg}')
+  .pipe(newer(paths.fonts.dest))
+  .pipe(gulp.dest(paths.fonts.dest));
+});
+
+// Уменьшаем картинки и складываем их в папку img
+gulp.task('img:copy', () => {
+  return gulp.src(paths.img.src + '/**/**/*.{png,jpg}')
+  .pipe(newer(paths.img.dest))
+  .pipe(imagemin({
+    optimizationLevel: 5
+  }))
+  .pipe(gulp.dest(paths.img.dest));
+});
+
+// Собирааем svg в файл sprite-svg.svg
+gulp.task('svg:build', () => {
+  return gulp.src(paths.svg.src + '/*.svg')
+  .pipe(newer(paths.svg.dest))
+  .pipe(svgmin(function (file) {
+    return {
+      plugins: [{
+        cleanupIDs: {
+          minify: true
+        }   
+      }]
+    }
+  }))
+  .pipe(svgstore({inlineSvg: true}))
+  .pipe(cheerio({
+    run: function($) {
+      $('svg').attr('style', 'display:none');
+    },
+    parserOptions: {
+      xmlMode: true
+    }
+  }))
+  .pipe(rename('sprite-svg.svg'))
+  .pipe(gulp.dest(paths.svg.dest));
+});
+
 // Собираем разметку
 gulp.task('html:build', () => {
   return gulp.src(paths.html.src + '/*.pug')
@@ -82,12 +137,6 @@ gulp.task('html:build', () => {
   .pipe(debug({title: 'html'}))
   .pipe(pug(gulpif(isDevelopment, {pretty: true })))
   .pipe(gulp.dest(paths.html.dest));
-});
-
-// Копируем файлы css
-gulp.task('css:copy', () => {
-  return gulp.src(libs.css)
-  .pipe(gulp.dest(paths.baseDir + '/libs/css/'));
 });
 
 // Собираем стили
@@ -114,12 +163,6 @@ gulp.task('css:build', () => {
   .pipe(gulp.dest(paths.css.dest));
 });
 
-// Копируем файлы скриптов
-gulp.task('js:copy', () => {
-  return gulp.src(libs.js)
-  .pipe(gulp.dest(paths.baseDir + '/libs/js/'));
-});
-
 // Собираем скрипты
 gulp.task('js:build', () => {
   return gulp.src(paths.js.src + '/*.js')
@@ -144,67 +187,22 @@ gulp.task('js:build', () => {
   .pipe(gulp.dest(paths.js.dest));
 });
 
-// Копируем шрифты
-gulp.task('fonts:copy', () => {
-  return gulp.src(paths.fonts.src + '/**/*.{ttf,woff,woff2,eot,svg}')
-  .pipe(newer(paths.fonts.dest))
-  .pipe(gulp.dest(paths.fonts.dest));
-});
-
-// Копируем картинки
-gulp.task('img:copy', () => {
-  return gulp.src(paths.img.src + '/**/**/*.{png,jpg}')
-  .pipe(newer(paths.img.dest))
-  .pipe(imagemin({
-    optimizationLevel: 5
-  }))
-  .pipe(gulp.dest(paths.img.dest));
-});
-
-// Собирааем svg
-gulp.task('svg:sprite', () => {
-  return gulp.src(paths.svg.src + '/*.svg')
-  .pipe(newer(paths.svg.dest))
-  .pipe(svgmin(function (file) {
-    return {
-      plugins: [{
-        cleanupIDs: {
-          minify: true
-        }   
-      }]
-    }
-  }))
-  .pipe(svgstore({inlineSvg: true}))
-  .pipe(cheerio({
-    run: function($) {
-      $('svg').attr('style', 'display:none');
-    },
-    parserOptions: {
-      xmlMode: true
-    }
-  }))
-  .pipe(rename('sprite-svg.svg'))
-  .pipe(gulp.dest(paths.svg.dest));
-});
-
 gulp.task('watch', () => {
   gulp.watch(paths.html.src + '/**/**/*.pug', gulp.series('html:build'));
   gulp.watch(paths.css.src + '/**/**/*.scss', gulp.series('css:build'));
   gulp.watch(paths.js.src + '/*.js', gulp.series('js:build'));
   gulp.watch(paths.fonts.src + '/**/*.{ttf,woff,woff2,eot,svg}', gulp.series('fonts:copy'));
   gulp.watch(paths.img.src + '/**/**/*.{png,jpg}', gulp.series('img:copy'));
-  gulp.watch(paths.svg.src + '/**/*.svg', gulp.series('svg:sprite'));
+  gulp.watch(paths.svg.src + '/**/*.svg', gulp.series('svg:build'));
 });
 
 gulp.task('serve', () => {
-  browserSync.init({
-    server: paths.baseDir + '/'
-  });
+  browserSync.init({ server: paths.baseDir + '/' });
   gulp.watch(paths.baseDir + '/**/**/*.*').on('change', browserSync.reload);    
 });
 
 gulp.task('build', 
-  gulp.series('del', 'fonts:copy', 'img:copy', 'svg:sprite', 'css:copy', 'js:copy', 'html:build', 'css:build', 'js:build'));
+  gulp.series('del', 'css:libs', 'js:libs', 'fonts:copy', 'img:copy', 'svg:build', 'html:build', 'css:build', 'js:build'));
 
 // Собираем проект
 gulp.task('default', gulp.series('build', gulp.parallel('watch', 'serve')));
